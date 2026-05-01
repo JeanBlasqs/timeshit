@@ -90,19 +90,7 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
     }
   }
 
-  const handleDelete = async () => {
-    if (onDelete && window.confirm('Tem certeza que deseja excluir essa tarefa?')) {
-      setLoading(true)
-      try {
-        await onDelete()
-      } catch (error) {
-        console.error('Error deleting event:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-  }
-
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div 

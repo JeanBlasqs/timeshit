@@ -12,7 +12,6 @@ import ptBr from '@fullcalendar/core/locales/pt-br'
 import '../styles/calendar.css'
 import '../styles/theme.css'
 import { getStatusColor } from '../utils/statusColors'
-import { useTheme } from '../contexts/ThemeContext'
 import Swal from 'sweetalert2'
 
 export default function Calendar() {
@@ -276,24 +275,6 @@ export default function Calendar() {
   const handleCategoryCreated = (category: any) => {
     setCategories([...categories, category])
     setShowCategoryModal(false)
-  }
-
-  const handleDeleteCategory = async (categoryId: string) => {
-    const { error } = await supabase
-      .from('categorias')
-      .delete()
-      .eq('id', categoryId)
-    
-    if (error) {
-      console.error('Error deleting category:', error)
-      alert('Erro ao excluir categoria. Tente novamente.')
-      return
-    }
-
-    setCategories(categories.filter(cat => cat.id !== categoryId))
-    if (selectedCategory === categoryId) {
-      setSelectedCategory('')
-    }
   }
 
   const toggleCategoryExpansion = (categoryId: string) => {
@@ -922,7 +903,7 @@ export default function Calendar() {
             setSelectedDate(null)
           }}
           onSave={handleSaveEvent}
-          onDelete={selectedEvent ? () => handleDeleteEvent(selectedEvent.id) : undefined}
+          onDelete={selectedEvent?.id ? () => handleDeleteEvent(selectedEvent!.id) : undefined}
         />
       )}
     </div>

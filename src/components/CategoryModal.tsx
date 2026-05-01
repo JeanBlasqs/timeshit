@@ -98,7 +98,7 @@ export default function CategoryModal({ isOpen, onClose, onCategoryCreated }: Ca
     } catch (err) {
       console.error('Error completo:', err)
       console.error('Error type:', typeof err)
-      console.error('Error message:', err?.message)
+      console.error('Error message:', (err as any)?.message)
       closeLoadingNotification()
       alert('Erro inesperado ao criar categoria. Tente novamente.')
     } finally {

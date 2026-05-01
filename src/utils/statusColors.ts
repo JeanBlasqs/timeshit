@@ -1,14 +1,11 @@
+const statusColors: Record<string, string> = {
+  nao_iniciado: '#8B0000', // vinho mais escuro
+  em_andamento: '#D4A574', // bege/marrom médio
+  concluido: '#C8B88B', // bege claro
+}
+
 export const getStatusColor = (status: string): string => {
-  switch (status) {
-    case 'nao_iniciado':
-      return '#8B0000' // vinho mais escuro
-    case 'em_andamento':
-      return '#D4A574' // bege/marrom médio
-    case 'concluido':
-      return '#C8B88B' // bege claro
-    default:
-      return '#5F0000' // vinho padrão
-  }
+  return statusColors[status] || '#5F0000' // vinho padrão
 }
 
 export const getStatusLabel = (status: string): string => {

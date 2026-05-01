@@ -6,7 +6,7 @@ import Calendar from './pages/Calendar.tsx'
 import { ThemeProvider } from './contexts/ThemeContext'
 
 export default function App() {
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState<any>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
