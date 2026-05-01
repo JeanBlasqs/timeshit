@@ -28,7 +28,8 @@ export default function Login() {
           options: {
             data: {
               name: name
-            }
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback`
           }
         })
 
