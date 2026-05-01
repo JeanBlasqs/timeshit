@@ -1,0 +1,477 @@
+/* FullCalendar otimizado para iPhone 14 (390x844px) e tema vinho */
+.fc {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: var(--color-surface);
+}
+
+/* View mensal - sem scroll e ajustado para tela */
+/* ── View mensal: sem scroll, altura automática ── */
+.fc .fc-daygrid-view {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.fc .fc-daygrid-day-frame {
+  min-height: 70px !important;
+}
+
+/* ── Views semanal e diária: deixa o FullCalendar controlar o scroll interno ── */
+.fc .fc-timegrid-view {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* O scroll acontece aqui dentro — não no view */
+.fc .fc-scroller {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Mobile: limita a altura e garante scroll no scroller interno */
+@media (max-width: 768px) {
+  .fc .fc-scroller {
+    max-height: calc(100vh - 350px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+.fc .fc-toolbar {
+  background: var(--color-surface);
+  border: none;
+  padding: 8px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fc .fc-toolbar-title {
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.fc .fc-button-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.fc .fc-button {
+  background: var(--color-primary);
+  color: #FFFFFF !important;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.fc .fc-button-primary {
+  background: var(--gradient-wine-subtle);
+  border: none;
+  color: #FFFFFF !important;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.fc .fc-button-primary:hover {
+  background: var(--gradient-wine);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: var(--gradient-wine);
+  box-shadow: var(--shadow-wine);
+}
+
+.fc .fc-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fc .fc-daygrid {
+  background: var(--color-surface);
+}
+
+.fc .fc-daygrid-day-frame {
+  min-height: 80px !important; /* Reduzido para mobile */
+  max-height: 120px !important;
+}
+
+.fc .fc-daygrid-day {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin: 1px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.fc .fc-daygrid-day:hover {
+  background: var(--color-hover);
+  transform: scale(1.01);
+  box-shadow: var(--shadow-md);
+}
+
+.fc .fc-day-today {
+  background: transparent !important;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+/* Hoje nas views semanal e diária - apenas borda vinho */
+.fc .fc-timegrid .fc-day-today {
+  background: transparent !important;
+  border: 2px solid var(--color-primary) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.fc .fc-col-header {
+  background: var(--color-surface);
+  border: none;
+}
+
+.fc .fc-col-header-cell {
+  background: var(--color-surface);
+  border: none;
+  padding: 10px 2px;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.fc .fc-daygrid-day-number {
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.fc .fc-event {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 2px 4px;
+  margin: 1px;
+  font-size: 10px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.fc .fc-event::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.fc .fc-event:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.fc .fc-event-title {
+  color: var(--color-text);
+  font-weight: 600;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc .fc-timegrid {
+  background: var(--color-surface);
+}
+
+.fc .fc-timegrid-slot {
+  border-color: var(--color-border);
+  height: 20px !important; /* Ajustado para mobile */
+}
+
+.fc .fc-timegrid-slot-label {
+  color: var(--color-text) !important;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  color: var(--color-text) !important;
+}
+
+.fc .fc-timegrid-col {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  min-width: 50px !important; /* Reduzido para mobile */
+  max-width: 60px !important;
+}
+
+.fc .fc-timegrid-event {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-size: 10px;
+  padding: 2px 4px;
+}
+
+/* iPhone 14 específico (390x844px) */
+@media only screen 
+and (device-width: 390px) 
+and (device-height: 844px) 
+and (-webkit-device-pixel-ratio: 3) {
+  
+  .fc {
+    height: calc(100vh - 180px) !important;
+    min-height: 550px !important;
+  }
+  
+  .fc .fc-toolbar {
+    padding: 10px;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.1rem;
+  }
+  
+  .fc .fc-button-primary {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-width: 50px;
+  }
+  
+  .fc .fc-daygrid-day-frame {
+    min-height: 70px !important;
+    max-height: 100px !important;
+  }
+  
+  .fc .fc-daygrid-day {
+    margin: 0.5px;
+  }
+  
+  .fc .fc-event {
+    font-size: 9px;
+    padding: 1px 3px;
+    margin: 0.5px;
+  }
+  
+  .fc .fc-timegrid-col {
+    min-width: 45px !important;
+    max-width: 55px !important;
+  }
+  
+  .fc .fc-timegrid-slot {
+    height: 18px !important;
+  }
+  
+  .fc .fc-col-header-cell {
+    padding: 8px 1px;
+  }
+  
+  .fc .fc-col-header-cell-cushion {
+    font-size: 10px;
+  }
+  
+  .fc .fc-daygrid-day-number {
+    font-size: 11px;
+  }
+}
+
+/* Mobile geral */
+@media (max-width: 768px) {
+  .fc {
+    height: calc(100vh - 160px) !important;
+    min-height: 500px !important;
+  }
+  
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .fc .fc-button {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    border-radius: var(--radius-sm);
+    min-width: 50px;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 8px;
+  }
+  
+  .fc .fc-daygrid-day-frame {
+    min-height: 70px !important;
+    max-height: 90px !important;
+  }
+  
+  .fc .fc-col-header-cell {
+    padding: 8px 1px;
+  }
+  
+  .fc .fc-col-header-cell-cushion {
+    font-size: 10px;
+  }
+  
+  .fc .fc-daygrid-day-number {
+    font-size: 11px;
+  }
+  
+  .fc .fc-event {
+    font-size: 9px;
+    padding: 1px 3px;
+    margin: 0.5px;
+    line-height: 1.1;
+  }
+  
+  /* Ajustes específicos para view de semana */
+  .fc .fc-timegrid .fc-timegrid-col {
+    min-width: 50px !important;
+    max-width: 60px !important;
+  }
+  
+  .fc .fc-timegrid .fc-timegrid-slot {
+    height: 18px !important;
+  }
+  
+  .fc .fc-timegrid .fc-timegrid-slot-label {
+    font-size: 9px !important;
+  }
+  
+  /* Cabeçalhos dos dias na view semana */
+  .fc .fc-timegrid .fc-col-header-cell {
+    padding: 2px 1px !important;
+  }
+  
+  .fc .fc-timegrid .fc-col-header-cell-cushion {
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    padding: 1px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  
+  /* Ajuste específico para o dia da semana - quebrar linha */
+  .fc .fc-timegrid .fc-day-top {
+    font-size: 9px !important;
+    line-height: 1 !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  .fc .fc-timegrid .fc-day-number {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    display: block !important;
+    margin-top: 1px !important;
+  }
+  
+  /* Forçar quebra de linha no cabeçalho */
+  .fc .fc-timegrid .fc-col-header-cell-cushion {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    line-height: 1.1 !important;
+  }
+  
+  /* Separar o dia da data */
+  .fc .fc-timegrid .fc-col-header-cell-cushion::after {
+    content: attr(data-date) !important;
+    display: block !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    margin-top: 1px !important;
+  }
+}
+
+/* Prevenir sobreposição de eventos */
+.fc .fc-daygrid-day-events {
+  margin-top: 2px;
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.fc .fc-daygrid-event-harness {
+  margin-bottom: 1px;
+}
+
+.fc .fc-more-link {
+  background: var(--gradient-wine);
+  color: white;
+  border-radius: var(--radius-sm);
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* Scroll horizontal previnido e vertical interno */
+.fc-scroller {
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.fc-scroller-liquid {
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+}
+
+.fc-daygrid {
+  width: 100% !important;
+}
+
+/* Container principal sem scroll */
+.fc-view-harness {
+  overflow: visible !important;
+}
+
+.fc {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+}

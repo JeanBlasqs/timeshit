@@ -1,0 +1,167 @@
+/* Variáveis CSS para temas vinho modernos */
+:root {
+  --color-primary: #4b0f1c;
+  --color-primary-rgb: rgb(75, 15, 28);
+  --color-secondary: #f4f4f5;
+  --color-secondary-rgb: rgb(244, 244, 245);
+  --color-text: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
+  --color-background: #0f0f11;
+  --color-surface: #1f1f23;
+  --color-border: #2a2a2e;
+  --color-hover: #7a1f2c;
+  
+  /* Gradientes vinho */
+  --gradient-wine: linear-gradient(135deg, #4b0f1c, #7a1f2c, #a83246);
+  --gradient-wine-subtle: linear-gradient(135deg, #4b0f1c, #7a1f2c);
+  --gradient-glass: rgba(75, 15, 28, 0.1);
+  
+  /* Sombras modernas */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-wine: 0 4px 20px rgba(75, 15, 28, 0.3);
+  
+  /* Bordas arredondadas */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+/* Classes utilitárias tema vinho */
+.bg-primary { 
+  background: var(--gradient-wine); 
+  box-shadow: var(--shadow-wine);
+}
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-surface { 
+  background-color: var(--color-surface);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+}
+.bg-background { background-color: var(--color-background); }
+.bg-glass { 
+  background: var(--gradient-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-color { color: var(--color-text); }
+.text-color-secondary { color: var(--color-text-secondary); }
+
+.border-primary { border-color: var(--color-primary); }
+.border-secondary { border-color: var(--color-secondary); }
+.border-surface { border-color: var(--color-surface); }
+
+.hover-scale:hover { transform: scale(1.02); }
+.hover-glow:hover { 
+  box-shadow: 0 0 20px rgba(75, 15, 28, 0.4);
+  transform: translateY(-2px);
+}
+.hover-wine:hover {
+  background: var(--gradient-wine-subtle);
+  box-shadow: var(--shadow-wine);
+}
+
+/* Transições suaves modernas */
+* {
+  transition: all 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar customizada vinho */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-wine);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gradient-wine-subtle);
+}
+
+/* Botões modernos branco */
+.btn-white {
+  background: #FFFFFF;
+  color: #5F0000;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Fonte para nomes de tarefas */
+.task-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.btn-white:active {
+  transform: translateY(0);
+}
+
+/* Input fields modernos */
+.input-modern {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.input-modern:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(75, 15, 28, 0.1);
+}
+
+/* Cards modernos */
+.card-modern {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+.card-modern:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px);
+}
+
+/* Sidebar gradiente vinho */
+.sidebar-wine {
+  background: var(--gradient-wine);
+  box-shadow: var(--shadow-wine);
+}
+
+/* Overlay glass */
+.overlay-glass {
+  background: rgba(15, 15, 17, 0.8);
+  backdrop-filter: blur(10px);
+}
