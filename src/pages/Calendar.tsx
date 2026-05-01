@@ -386,7 +386,7 @@ export default function Calendar() {
   }
 
   const getEventsByStatus = () => {
-    const statusGroups = {
+    const statusGroups: Record<string, any[]> = {
       nao_iniciado: [],
       em_andamento: [],
       concluido: []
@@ -394,8 +394,8 @@ export default function Calendar() {
     
     events.forEach(event => {
       const status = event.extendedProps?.status || 'nao_iniciado'
-      if (statusGroups[status]) {
-        statusGroups[status].push(event)
+      if (statusGroups[status as keyof typeof statusGroups]) {
+        statusGroups[status as keyof typeof statusGroups].push(event)
       }
     })
     
@@ -670,10 +670,10 @@ export default function Calendar() {
                         </svg>
                         <div 
                           className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: statusColors[status] }}
+                          style={{ backgroundColor: statusColors[status as keyof typeof statusColors] }}
                         />
                         <span className="text-sm font-medium" style={{ color: '#FFFFFF' }}>
-                          {statusLabels[status]}
+                          {statusLabels[status as keyof typeof statusLabels]}
                         </span>
                         <span className="text-xs text-gray-500">({statusEvents.length})</span>
                       </div>
@@ -903,7 +903,7 @@ export default function Calendar() {
             setSelectedDate(null)
           }}
           onSave={handleSaveEvent}
-          onDelete={selectedEvent?.id ? () => handleDeleteEvent(selectedEvent!.id) : undefined}
+          onDelete={selectedEvent?.id ? () => handleDeleteEvent(selectedEvent?.id!) : undefined}
         />
       )}
     </div>
