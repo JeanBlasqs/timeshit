@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { Event, Category } from '../types'
 import { supabase } from '../lib/supabase'
 import StatusSelector from './StatusSelector'
+import Swal from 'sweetalert2'
 
 interface EventModalProps {
   event?: Event | null
@@ -16,7 +17,6 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
   const [description, setDescription] = useState('')
   const [startAt, setStartAt] = useState('')
   const [endAt, setEndAt] = useState('')
-  const [color, setColor] = useState('#3788d8')
   const [categoryId, setCategoryId] = useState('')
   const [status, setStatus] = useState<'nao_iniciado' | 'em_andamento' | 'concluido'>('nao_iniciado')
   const [categories, setCategories] = useState<Category[]>([])
@@ -29,8 +29,7 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
       setDescription(event.description || '')
       setStartAt(event.start_at)
       setEndAt(event.end_at)
-      setColor(event.color || '#3788d8')
-      setCategoryId(event.category_id || '')
+            setCategoryId(event.category_id || '')
       setStatus(event.status || 'nao_iniciado')
     } else if (selectedDate) {
       // Adicionar hora padrão se só tiver data
@@ -61,13 +60,37 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
     try {
       // Validar datas
       if (!startAt || !endAt) {
-        alert('Por favor, selecione as datas de início e fim')
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Datas Obrigatórias',
+          text: 'Por favor, selecione as datas de início e fim',
+          confirmButtonColor: '#5F0000',
+          iconColor: '#5F0000'
+        })
         setLoading(false)
         return
       }
 
       if (new Date(startAt) >= new Date(endAt)) {
-        alert('A data de fim deve ser posterior à data de início')
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Data Inválida',
+          text: 'A data de fim deve ser posterior à data de início',
+          confirmButtonColor: '#5F0000',
+          iconColor: '#5F0000'
+        })
+        setLoading(false)
+        return
+      }
+
+      if (!categoryId) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Categoria Obrigatória',
+          text: 'Por favor, selecione uma categoria para a tarefa',
+          confirmButtonColor: '#5F0000',
+          iconColor: '#5F0000'
+        })
         setLoading(false)
         return
       }
@@ -78,7 +101,6 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
         start_at: new Date(startAt).toISOString(),
         end_at: new Date(endAt).toISOString(),
         category_id: categoryId,
-        color,
         status
       }
       
@@ -274,30 +296,14 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
 
           <div>
             <label className="block text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
-              Cor
-            </label>
-            <div className="flex items-center space-x-3">
-              <input
-                type="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="h-10 w-20 rounded cursor-pointer"
-                style={{ border: '1px solid var(--color-border)' }}
-              />
-              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{color}</span>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
-              Categoria
+              Categoria *
             </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               className="w-full input-modern"
             >
-              <option value="">Sem categoria</option>
+              <option value="">Selecione uma categoria *</option>
               {categories.map(category => (
                 <option key={category.id} value={category.id}>
                   {category.Name}

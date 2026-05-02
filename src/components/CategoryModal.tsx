@@ -75,7 +75,12 @@ export default function CategoryModal({ isOpen, onClose, onCategoryCreated }: Ca
       if (error) {
         console.error('Error creating category:', error)
         closeLoadingNotification()
-        alert('Erro ao criar categoria. Tente novamente.')
+        await Swal.fire({
+          icon: 'error',
+          title: 'Erro ao Criar',
+          text: 'Erro ao criar categoria. Tente novamente.',
+          confirmButtonColor: '#5F0000'
+        })
       } else {
         if (data && data[0]) {
           onCategoryCreated(data[0])
@@ -100,7 +105,12 @@ export default function CategoryModal({ isOpen, onClose, onCategoryCreated }: Ca
       console.error('Error type:', typeof err)
       console.error('Error message:', (err as any)?.message)
       closeLoadingNotification()
-      alert('Erro inesperado ao criar categoria. Tente novamente.')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro Inesperado',
+        text: 'Erro inesperado ao criar categoria. Tente novamente.',
+        confirmButtonColor: '#5F0000'
+      })
     } finally {
       setLoading(false)
     }

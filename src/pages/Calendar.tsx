@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -12,9 +12,11 @@ import ptBr from '@fullcalendar/core/locales/pt-br'
 import '../styles/calendar.css'
 import '../styles/theme.css'
 import { getStatusColor } from '../utils/statusColors'
+import { getContrastColor } from '../utils/colors'
 import Swal from 'sweetalert2'
 
 export default function Calendar() {
+  const calendarRef = useRef<FullCalendar>(null)
   const [events, setEvents] = useState<any[]>([])
   const [showModal, setShowModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
@@ -34,12 +36,18 @@ export default function Calendar() {
   useEffect(() => {
     // Pegar usuário logado
     getUser()
-    // Carregar categorias
+    // Carregar categorias primeiro
     fetchCategories()
     // Testar conexão primeiro
     testConnection()
-    fetchEvents()
   }, [])
+
+  useEffect(() => {
+    // Chamar fetchEvents quando categorias estiverem carregadas
+    if (categories.length > 0) {
+      fetchEvents()
+    }
+  }, [categories])
 
   useEffect(() => {
     // Listener para mudanças de autenticação
@@ -47,7 +55,7 @@ export default function Calendar() {
       (_, session) => {
         setUser(session?.user || null)
         if (session?.user) {
-          fetchEvents()
+          // Não chamar fetchEvents aqui, deixe o useEffect de categories cuidar disso
         }
       }
     )
@@ -93,6 +101,14 @@ export default function Calendar() {
     }
   }
 
+  const fetchEventsWithCategories = async () => {
+    // Garantir que categorias estejam carregadas
+    if (categories.length === 0) {
+      await fetchCategories()
+    }
+    await fetchEvents()
+  }
+
   const fetchEvents = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -114,34 +130,46 @@ export default function Calendar() {
       return
     }
 
-    const formattedEvents = data?.map(event => ({
-      id: event.id,
-      title: event.Titulo,
-      start: event.DataHoraInicio,
-      end: event.DataHoraFinal,
-      allDay: false,
-      backgroundColor: event.Color || '#5F0000',
-      textColor: '#FFFFFF',
-      extendedProps: {
-        description: event.Descricao,
-        category_id: event.categoria_id,
-        status: event.status || 'nao_iniciado',
-        statusColor: getStatusColor(event.status || 'nao_iniciado')
+    const formattedEvents = data?.map(event => {
+      // Encontrar a categoria para obter a cor
+      const category = categories.find(cat => cat.id === event.categoria_id)
+      const categoryColor = category?.Color || '#5F0000'
+      
+      return {
+        id: event.id,
+        title: event.Titulo,
+        start: event.DataHoraInicio,
+        end: event.DataHoraFinal,
+        allDay: false,
+        backgroundColor: categoryColor,
+        textColor: getContrastColor(categoryColor),
+        extendedProps: {
+          description: event.Descricao,
+          category_id: event.categoria_id,
+          category_name: category?.Name || 'Sem categoria',
+          status: event.status || 'nao_iniciado',
+          statusColor: getStatusColor(event.status || 'nao_iniciado')
+        }
       }
-    })) || []
+    }) || []
 
     setEvents(formattedEvents)
   }
 
   
-  const handleEventClick = (arg: any) => {
+  const handleEventClick = async (arg: any) => {
     // Validar datas antes de definir o evento
     const startDate = arg.event.start?.toISOString()
     const endDate = arg.event.end?.toISOString()
     
     if (!startDate || !endDate) {
       console.error('Evento com datas inválidas')
-      alert('Este evento possui datas inválidas e não pode ser editado')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Evento Inválido',
+        text: 'Este evento possui datas inválidas e não pode ser editado',
+        confirmButtonColor: '#5F0000'
+      })
       return
     }
 
@@ -162,27 +190,48 @@ export default function Calendar() {
     // Validar campos obrigatórios antes de salvar
     if (!eventData.title || eventData.title.trim() === '') {
       console.error('Título não pode ser vazio')
-      alert('Por favor, preencha o título da tarefa')
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Título Obrigatório',
+        text: 'Por favor, preencha o título da tarefa',
+        confirmButtonColor: '#5F0000',
+        iconColor: '#5F0000'
+      })
       return
     }
 
     if (!eventData.start_at || !eventData.end_at) {
       console.error('Data de início ou fim não pode ser vazia')
-      alert('Por favor, preencha as datas de início e fim')
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Datas Obrigatórias',
+        text: 'Por favor, preencha as datas de início e fim',
+        confirmButtonColor: '#5F0000',
+        iconColor: '#5F0000'
+      })
       return
     }
 
     if (!user?.id) {
       console.error('Usuário não autenticado')
-      alert('Erro de autenticação. Por favor, faça login novamente.')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro de Autenticação',
+        text: 'Por favor, faça login novamente.',
+        confirmButtonColor: '#5F0000'
+      })
       return
     }
 
-    // Garantir que user_id seja uma string válida
     const userId = String(user.id)
     if (!userId || userId === 'undefined' || userId === 'null' || userId === '') {
       console.error('ID de usuário inválido:', user.id)
-      alert('Erro de autenticação. ID de usuário inválido.')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro de Autenticação',
+        text: 'ID de usuário inválido.',
+        confirmButtonColor: '#5F0000'
+      })
       return
     }
 
@@ -209,7 +258,12 @@ export default function Calendar() {
         if (error) {
           console.error('Error updating event:', error)
           closeLoadingNotification()
-          alert('Erro ao atualizar tarefa: ' + error.message)
+          await Swal.fire({
+            icon: 'error',
+            title: 'Erro ao Atualizar',
+            text: 'Erro ao atualizar tarefa: ' + error.message,
+            confirmButtonColor: '#5F0000'
+          })
           return
         }
         
@@ -236,7 +290,12 @@ export default function Calendar() {
         if (error) {
           console.error('Error creating event:', error)
           closeLoadingNotification()
-          alert('Erro ao criar tarefa: ' + error.message)
+          await Swal.fire({
+            icon: 'error',
+            title: 'Erro ao Criar',
+            text: 'Erro ao criar tarefa: ' + error.message,
+            confirmButtonColor: '#5F0000'
+          })
           return
         }
         
@@ -252,8 +311,27 @@ export default function Calendar() {
     } catch (error) {
       console.error('Error in handleSaveEvent:', error)
       closeLoadingNotification()
-      alert('Erro ao salvar tarefa')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro ao Salvar',
+        text: 'Erro ao salvar tarefa',
+        confirmButtonColor: '#5F0000'
+      })
     }
+  }
+
+  const handleTaskClick = (event: any) => {
+    const calendarApi = calendarRef.current?.getApi()
+    if (!calendarApi) return
+
+    // start pode ser string ou objeto Date — trata os dois casos
+    const rawStart = event.start
+    const eventDate = rawStart instanceof Date
+      ? rawStart.toISOString().split('T')[0]
+      : String(rawStart).split('T')[0]
+
+    calendarApi.changeView('timeGridDay', eventDate)
+    setIsSidebarOpen(false) // fecha sidebar pra ver o calendário
   }
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -314,7 +392,12 @@ export default function Calendar() {
       if (error) {
         console.error('Error updating category:', error)
         closeLoadingNotification()
-        alert('Erro ao atualizar categoria. Tente novamente.')
+        await Swal.fire({
+          icon: 'error',
+          title: 'Erro ao Atualizar',
+          text: 'Erro ao atualizar categoria. Tente novamente.',
+          confirmButtonColor: '#5F0000'
+        })
         return
       }
 
@@ -332,7 +415,12 @@ export default function Calendar() {
     } catch (error) {
       console.error('Error in handleUpdateCategory:', error)
       closeLoadingNotification()
-      alert('Erro ao atualizar categoria')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro ao Atualizar',
+        text: 'Erro ao atualizar categoria',
+        confirmButtonColor: '#5F0000'
+      })
     }
   }
 
@@ -353,7 +441,12 @@ export default function Calendar() {
       
       if (updateError) {
         console.error('Error updating events:', updateError)
-        alert('Erro ao atualizar tarefas da categoria')
+        await Swal.fire({
+          icon: 'error',
+          title: 'Erro ao Atualizar',
+          text: 'Erro ao atualizar tarefas da categoria',
+          confirmButtonColor: '#5F0000'
+        })
         return
       }
       
@@ -365,7 +458,12 @@ export default function Calendar() {
       
       if (error) {
         console.error('Error deleting category:', error)
-        alert('Erro ao excluir categoria')
+        await Swal.fire({
+          icon: 'error',
+          title: 'Erro ao Excluir',
+          text: 'Erro ao excluir categoria',
+          confirmButtonColor: '#5F0000'
+        })
         return
       }
       
@@ -381,7 +479,12 @@ export default function Calendar() {
       showSuccessNotification('Sucesso!', 'Categoria excluída com sucesso!')
     } catch (error) {
       console.error('Error in confirmDeleteCategory:', error)
-      alert('Erro ao excluir categoria')
+      await Swal.fire({
+        icon: 'error',
+        title: 'Erro ao Excluir',
+        text: 'Erro ao excluir categoria',
+        confirmButtonColor: '#5F0000'
+      })
     }
   }
 
@@ -599,19 +702,7 @@ export default function Calendar() {
                           <div
                             key={event.id}
                             className="px-3 py-2 text-xs bg-white rounded border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-                            onClick={() => {
-                              setSelectedEvent({
-                                id: event.id,
-                                title: event.title,
-                                description: event.extendedProps?.description,
-                                start_at: event.start?.toISOString() || '',
-                                end_at: event.end?.toISOString() || '',
-                                category_id: event.extendedProps?.category_id,
-                                color: event.backgroundColor,
-                                status: event.extendedProps?.status || 'nao_iniciado'
-                              })
-                              setShowModal(true)
-                            }}
+                            onClick={() => handleTaskClick(event)}
                           >
                             <div className="font-medium text-gray-800">{event.title}</div>
                             <div className="text-gray-500">
@@ -648,7 +739,7 @@ export default function Calendar() {
                 const statusColors = {
                   nao_iniciado: '#8B0000',
                   em_andamento: '#D4A574',
-                  concluido: '#C8B88B'
+                  concluido: '#09E309'
                 }
                 
                 return (
@@ -687,19 +778,7 @@ export default function Calendar() {
                           <div
                             key={event.id}
                             className="px-2 py-1 text-xs bg-white rounded border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-                            onClick={() => {
-                              setSelectedEvent({
-                                id: event.id,
-                                title: event.title,
-                                description: event.extendedProps.description,
-                                start_at: event.start.toISOString(),
-                                end_at: event.end.toISOString(),
-                                category_id: event.extendedProps.category_id,
-                                color: event.backgroundColor,
-                                status: event.extendedProps.status
-                              })
-                              setShowModal(true)
-                            }}
+                            onClick={() => handleTaskClick(event)}
                           >
                             <div className="flex items-center justify-between">
                               <span className="truncate flex-1">{event.title}</span>
@@ -741,6 +820,7 @@ export default function Calendar() {
             </h1>
             
             <FullCalendar
+              ref={calendarRef}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               locale={ptBr}
