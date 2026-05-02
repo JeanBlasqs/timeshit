@@ -101,14 +101,7 @@ export default function Calendar() {
     }
   }
 
-  const fetchEventsWithCategories = async () => {
-    // Garantir que categorias estejam carregadas
-    if (categories.length === 0) {
-      await fetchCategories()
-    }
-    await fetchEvents()
-  }
-
+  
   const fetchEvents = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
