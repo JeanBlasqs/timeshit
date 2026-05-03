@@ -186,18 +186,6 @@
   max-width: 100%;
 }
 
-.fc .fc-event::before {
-  content: '';
-  position: absolute;
-  left: 2px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.8;
-}
 
 .fc .fc-event:hover {
   transform: scale(1.05);
