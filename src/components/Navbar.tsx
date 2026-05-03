@@ -48,7 +48,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center pl-12 sm:pl-0">
             <h1 className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
-              💩 TimeShit
+              TimeShit 💩
             </h1>
           </div>
 
