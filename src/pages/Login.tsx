@@ -75,7 +75,7 @@ export default function Login() {
           <p className="mt-2 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             {isSignUp 
               ? 'Preencha os dados para criar sua conta' 
-              : 'Entre para gerenciar seus eventos'
+              : 'Entre para gerenciar suas tarefas'
             }
           </p>
         </div>
