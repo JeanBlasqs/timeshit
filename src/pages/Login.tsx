@@ -131,8 +131,7 @@ export default function Login() {
                 style={{ 
                   backgroundColor: 'var(--color-surface)',
                   borderColor: 'var(--color-border)',
-                  color: 'var(--color-text)',
-                  focusRingColor: 'var(--color-primary)'
+                  color: 'var(--color-text)'
                 }}
                 required
               />
@@ -153,8 +152,7 @@ export default function Login() {
                 style={{ 
                   backgroundColor: 'var(--color-surface)',
                   borderColor: 'var(--color-border)',
-                  color: 'var(--color-text)',
-                  focusRingColor: 'var(--color-primary)'
+                  color: 'var(--color-text)'
                 }}
                 required
                 minLength={6}
