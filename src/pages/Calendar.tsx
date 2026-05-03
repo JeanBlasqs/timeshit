@@ -829,6 +829,43 @@ export default function Calendar() {
                 calendarApi.changeView('timeGridDay', info.dateStr);
               }}
               eventClick={handleEventClick}
+              eventContent={(eventInfo) => {
+                const status = eventInfo.event.extendedProps?.status || 'nao_iniciado'
+                const title = eventInfo.event.title
+                const viewType = eventInfo.view.type
+                const statusColor = eventInfo.event.extendedProps?.statusColor || '#5F0000'
+                
+                // Mapeamento para exibir status formatado
+                const statusLabels: Record<string, string> = {
+                  'nao_iniciado': 'Não Iniciado',
+                  'em_andamento': 'Em Andamento',
+                  'concluido': 'Concluído'
+                }
+                const statusLabel = statusLabels[status] || status
+                
+                // Mostrar status apenas em semana e dia
+                if (viewType === 'timeGridWeek' || viewType === 'timeGridDay') {
+                  return (
+                    <div className="fc-event-main p-1">
+                      <div className="fc-event-title font-medium">{title}</div>
+                      <div className="flex items-center mt-1">
+                        <div 
+                          className="w-1.5 h-1.5 rounded-full mr-1" 
+                          style={{ backgroundColor: statusColor }}
+                        />
+                        <span className="text-xs opacity-90">{statusLabel}</span>
+                      </div>
+                    </div>
+                  )
+                }
+                
+                // View mensal - mostra apenas título
+                return (
+                  <div className="fc-event-main">
+                    <div className="fc-event-title">{title}</div>
+                  </div>
+                )
+              }}
               editable={true}
               selectable={true}
               height="auto"
@@ -848,7 +885,7 @@ export default function Calendar() {
                 week: 'Semana',
                 day: 'Dia'
               }}
-              views={{
+                            views={{
                 dayGridMonth: {
                   titleFormat: { year: 'numeric', month: 'long' }
                 },
@@ -869,13 +906,15 @@ export default function Calendar() {
                 }
               }}
               dayHeaderContent={(args) => {
-                // Aplicar apenas nas views semanal e diária
                 const view = args.view.type;
+                const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+                
+                // Aplicar nas views semanal e diária
                 if (view === 'timeGridWeek' || view === 'timeGridDay') {
                   return (
                     <div style={{ textAlign: 'center', lineHeight: 1.3 }}>
                       <div style={{ fontSize: 11, fontWeight: 400, color: '#9b7b8a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                        {args.date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}
+                        {dias[args.date.getDay()]}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#4a1535' }}>
                         {args.date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
@@ -883,7 +922,14 @@ export default function Calendar() {
                     </div>
                   );
                 }
-                // Para view mensal, usar comportamento padrão
+                // Para view mensal, mostrar apenas o dia da semana
+                if (view === 'dayGridMonth') {
+                  return (
+                    <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 600 }}>
+                      {dias[args.date.getDay()]}
+                    </div>
+                  );
+                }
                 return null;
               }}
               windowResizeDelay={100}
@@ -974,6 +1020,14 @@ export default function Calendar() {
             setShowModal(false)
             setSelectedEvent(null)
             setSelectedDate(null)
+            fetchEvents()
+            // Forçar atualização do calendário
+            setTimeout(() => {
+              const calendarApi = calendarRef.current?.getApi()
+              if (calendarApi) {
+                calendarApi.refetchEvents()
+              }
+            }, 100)
           }}
           onSave={handleSaveEvent}
           onDelete={selectedEvent?.id ? () => handleDeleteEvent(selectedEvent?.id!) : undefined}

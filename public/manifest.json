@@ -1,0 +1,26 @@
+{
+  "name": "TimeShit - Gerenciador de Tarefas",
+  "short_name": "TimeShit",
+  "description": "Organize suas tarefas e categorias de forma simples e eficiente",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#5F0000",
+  "theme_color": "#5F0000",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

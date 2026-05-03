@@ -1,0 +1,7 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#5F0000" rx="80" ry="80"/>
+  
+  <!-- Poop emoji -->
+  <text x="256" y="380" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji" font-size="280" text-anchor="middle">💩</text>
+</svg>
