@@ -150,33 +150,33 @@ export default function Calendar() {
   }
 
   
-  const handleEventClick = async (arg: any) => {
-    // Validar datas antes de definir o evento
-    const startDate = arg.event.start?.toISOString()
-    const endDate = arg.event.end?.toISOString()
-    
-    if (!startDate || !endDate) {
-      console.error('Evento com datas inválidas')
-      await Swal.fire({
-        icon: 'error',
-        title: 'Evento Inválido',
-        text: 'Este evento possui datas inválidas e não pode ser editado',
-        confirmButtonColor: '#5F0000'
+  const handleEventClick = (arg: any) => {
+    const currentView = arg.view.type
+  
+    // Na view diária, abrir modal de edição
+    if (currentView === 'timeGridDay') {
+      const startDate = arg.event.start?.toISOString()
+      const endDate = arg.event.end?.toISOString()
+      
+      setSelectedEvent({
+        id: arg.event.id,
+        title: arg.event.title,
+        description: arg.event.extendedProps.description,
+        start_at: startDate,
+        end_at: endDate,
+        category_id: arg.event.extendedProps.category_id,
+        color: arg.event.backgroundColor,
+        status: arg.event.extendedProps.status || 'nao_iniciado'
       })
-      return
+      setShowModal(true)
+    } else {
+      // Nas views mensal e semanal, navegar para visualização diária
+      const calendarApi = calendarRef.current?.getApi()
+      if (calendarApi) {
+        const eventDate = arg.event.start.toISOString().split('T')[0]
+        calendarApi.changeView('timeGridDay', eventDate)
+      }
     }
-
-    setSelectedEvent({
-      id: arg.event.id,
-      title: arg.event.title,
-      description: arg.event.extendedProps.description,
-      start_at: startDate,
-      end_at: endDate,
-      category_id: arg.event.extendedProps.category_id,
-      color: arg.event.backgroundColor,
-      status: arg.event.extendedProps.status || 'nao_iniciado'
-    })
-    setShowModal(true)
   }
 
   const handleSaveEvent = async (eventData: Partial<Event>) => {
@@ -834,6 +834,8 @@ export default function Calendar() {
                 const title = eventInfo.event.title
                 const viewType = eventInfo.view.type
                 const statusColor = eventInfo.event.extendedProps?.statusColor || '#5F0000'
+                const backgroundColor = eventInfo.event.backgroundColor || '#5F0000'
+                const textColor = eventInfo.event.textColor || '#FFFFFF'
                 
                 // Mapeamento para exibir status formatado
                 const statusLabels: Record<string, string> = {
@@ -846,7 +848,15 @@ export default function Calendar() {
                 // Mostrar status apenas em semana e dia
                 if (viewType === 'timeGridWeek' || viewType === 'timeGridDay') {
                   return (
-                    <div className="fc-event-main p-1">
+                    <div 
+                      className="fc-event-main p-1"
+                      style={{ 
+                        backgroundColor,
+                        color: textColor,
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '4px'
+                      }}
+                    >
                       <div className="fc-event-title font-medium">{title}</div>
                       <div className="flex items-center mt-1">
                         <div 
@@ -859,9 +869,17 @@ export default function Calendar() {
                   )
                 }
                 
-                // View mensal - mostra apenas título
+                // View mensal - mostra apenas título com cor dinâmica
                 return (
-                  <div className="fc-event-main">
+                  <div 
+                    className="fc-event-main"
+                    style={{ 
+                      backgroundColor,
+                      color: textColor,
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '2px 4px'
+                    }}
+                  >
                     <div className="fc-event-title">{title}</div>
                   </div>
                 )
