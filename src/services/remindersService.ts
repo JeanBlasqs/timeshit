@@ -14,17 +14,23 @@ export interface Reminder {
 export const remindersService = {
   // Buscar todos os lembretes do usuário
   async fetchReminders(): Promise<Reminder[]> {
+    const now = new Date().toISOString()
+    
     const { data, error } = await supabase
       .from('reminders')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('start_date', { ascending: true })
 
     if (error) {
       console.error('Error fetching reminders:', error)
       throw error
     }
 
-    return data || []
+    // Ordena: primeiro os futuros (mais próximos primeiro), depois os passados
+    const upcoming = (data || []).filter(r => r.start_date >= now)
+    const past = (data || []).filter(r => r.start_date < now)
+
+    return [...upcoming, ...past]
   },
 
   // Criar novo lembrete
@@ -76,7 +82,7 @@ export const remindersService = {
       console.error('Error completing reminder:', error)
       throw error
     }
-  }
+  },
 
   // Atualizar lembrete
   async updateReminder(id: string, updates: Partial<Reminder>): Promise<Reminder> {

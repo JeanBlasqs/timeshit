@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useTheme } from '../contexts/ThemeContext'
 import { remindersService, type Reminder } from '../services/remindersService'
+import { ReminderModal, type ReminderFormData } from './ReminderModal'
 
 export const NotificationsDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [showForm, setShowForm] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    start_date: '',
-    end_date: '',
-    priority: 'baixa' as 'baixa' | 'media' | 'alta'
-  })
   const { theme } = useTheme()
 
   // Carregar lembretes do banco
@@ -70,7 +65,7 @@ export const NotificationsDropdown: React.FC = () => {
     if (diffDays < 0) {
       return `(atrasado ${Math.abs(diffDays)} dias)`
     } else if (diffDays === 0) {
-      return `(realizar hoje)`
+      return `(realizar hoje!)`
     } else if (diffDays === 1) {
       return `(restam 01 dia)`
     } else {
@@ -78,24 +73,22 @@ export const NotificationsDropdown: React.FC = () => {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const handleSubmit = async (data: ReminderFormData) => {
     // Validar se a data inicial é anterior a hoje (usando fuso local)
     const today = new Date()
     const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate())
     
     // Converter string de data para Date local sem UTC
-    const [startYear, startMonth, startDay] = formData.start_date.split('-').map(Number)
+    const [startYear, startMonth, startDay] = data.start_date.split('-').map(Number)
     const startDate = new Date(startYear, startMonth - 1, startDay)
     
     if (startDate < todayLocal) {
       alert('Não é possível criar lembretes para datas anteriores a hoje.')
       return
-    }ce
+    }
     
     // Validar se a data final é anterior à data inicial
-    const [endYear, endMonth, endDay] = formData.end_date.split('-').map(Number)
+    const [endYear, endMonth, endDay] = data.end_date.split('-').map(Number)
     const endDate = new Date(endYear, endMonth - 1, endDay)
     
     if (endDate < startDate) {
@@ -106,15 +99,22 @@ export const NotificationsDropdown: React.FC = () => {
     try {
       setLoading(true)
       const newReminder = await remindersService.createReminder({
-        name: formData.name,
-        start_date: formData.start_date,
-        end_date: formData.end_date,
-        priority: formData.priority
+        name: data.name,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        priority: data.priority
       })
       
-      setReminders([newReminder, ...reminders])
-      setFormData({ name: '', start_date: '', end_date: '', priority: 'baixa' })
-      setShowForm(false)
+      // Inserir na posição correta por proximidade
+      const updatedReminders = [...reminders, newReminder]
+      const now = new Date().toISOString()
+      
+      // Ordenar: primeiro os futuros (mais próximos primeiro), depois os passados
+      const upcoming = updatedReminders.filter(r => r.start_date >= now)
+      const past = updatedReminders.filter(r => r.start_date < now)
+      
+      setReminders([...upcoming, ...past])
+      setShowModal(false)
     } catch (error) {
       console.error('Erro ao criar lembrete:', error)
     } finally {
@@ -146,7 +146,6 @@ export const NotificationsDropdown: React.FC = () => {
       const target = event.target as HTMLElement
       if (!target.closest('.notifications-dropdown')) {
         setIsOpen(false)
-        setShowForm(false)
       }
     }
 
@@ -188,10 +187,13 @@ export const NotificationsDropdown: React.FC = () => {
       {/* Dropdown */}
       {isOpen && (
         <div 
-          className="absolute right-0 mt-2 w-96 rounded-lg shadow-xl z-50 overflow-hidden"
+          className="absolute lg:absolute mt-2 w-96 rounded-lg shadow-xl z-50 overflow-hidden"
           style={{ 
             backgroundColor: 'var(--color-surface)',
-            border: `1px solid var(--color-border)`
+            border: `1px solid var(--color-border)`,
+
+            transform: 'translateX(-60%)',
+            width: 'min(384px, calc(100vw - 2rem))'
           }}
         >
           {/* Cabeçalho */}
@@ -206,7 +208,7 @@ export const NotificationsDropdown: React.FC = () => {
               Lembretes
             </h3>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => setShowModal(true)}
               className="w-6 h-6 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               style={{ 
                 backgroundColor: 'var(--color-primary)',
@@ -217,126 +219,7 @@ export const NotificationsDropdown: React.FC = () => {
             </button>
           </div>
 
-          {/* Formulário */}
-          {showForm && (
-            <div 
-              className="p-4"
-              style={{ borderBottom: `1px solid var(--color-border)` }}
-            >
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div>
-                  <label 
-                    className="block text-sm font-medium mb-1"
-                    style={{ color: 'var(--color-text)' }}
-                  >
-                    Nome
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--color-background)',
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text)'
-                    }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label 
-                      className="block text-sm font-medium mb-1"
-                      style={{ color: 'var(--color-text)' }}
-                    >
-                      Início
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.start_date}
-                      onChange={(e) => setFormData({...formData, start_date: e.target.value})}
-                      className="w-full px-3 py-2 rounded-md border text-sm"
-                      style={{
-                        backgroundColor: 'var(--color-background)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)'
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label 
-                      className="block text-sm font-medium mb-1"
-                      style={{ color: 'var(--color-text)' }}
-                    >
-                      Fim
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.end_date}
-                      onChange={(e) => setFormData({...formData, end_date: e.target.value})}
-                      className="w-full px-3 py-2 rounded-md border text-sm"
-                      style={{
-                        backgroundColor: 'var(--color-background)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label 
-                    className="block text-sm font-medium mb-1"
-                    style={{ color: 'var(--color-text)' }}
-                  >
-                    Prioridade
-                  </label>
-                  <select
-                    value={formData.priority}
-                    onChange={(e) => setFormData({...formData, priority: e.target.value as 'baixa' | 'media' | 'alta'})}
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--color-background)',
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text)'
-                    }}
-                  >
-                    <option value="baixa">Baixa</option>
-                    <option value="media">Média</option>
-                    <option value="alta">Alta</option>
-                  </select>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    className="flex-1 py-2 px-4 rounded-md text-white text-sm font-medium transition-colors"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
-                  >
-                    Salvar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors"
-                    style={{
-                      backgroundColor: 'var(--color-background)',
-                      color: 'var(--color-text)',
-                      border: `1px solid var(--color-border)`
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
+          
           {/* Lista de lembretes */}
           <div className="max-h-96 overflow-y-auto">
             {reminders.length === 0 ? (
@@ -392,7 +275,7 @@ export const NotificationsDropdown: React.FC = () => {
                       {formatDate(reminder.start_date)} até {formatDate(reminder.end_date)}
                       <span 
                         className="ml-2 font-medium"
-                        style={{ color: 'var(--color-primary)' }}
+                        style={{ color: theme === 'light' ? 'var(--color-primary)' : '#FFFFFF' }}
                       >
                         {getDaysRemaining(reminder.start_date)}
                       </span>
@@ -417,6 +300,14 @@ export const NotificationsDropdown: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de formulário */}
+      <ReminderModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleSubmit}
+        loading={loading}
+      />
     </div>
   )
 }
