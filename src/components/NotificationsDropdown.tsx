@@ -4,6 +4,7 @@ import { remindersService, type Reminder } from '../services/remindersService'
 import { ReminderModal, type ReminderFormData } from './ReminderModal'
 
 export const NotificationsDropdown: React.FC = () => {
+  console.log('NotificationsDropdown renderizado')
   const [isOpen, setIsOpen] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [reminders, setReminders] = useState<Reminder[]>([])
@@ -24,6 +25,8 @@ export const NotificationsDropdown: React.FC = () => {
       setReminders(data)
     } catch (error) {
       console.error('Erro ao carregar lembretes:', error)
+      // Não quebrar a interface se a tabela não existir ainda
+      setReminders([])
     } finally {
       setLoading(false)
     }
