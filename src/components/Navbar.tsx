@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useTheme } from '../contexts/ThemeContext'
 import ThemeToggle from './ThemeToggle'
+import { NotificationsDropdown } from './NotificationsDropdown'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
@@ -54,6 +55,7 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-2 lg:space-x-4">
             <ThemeToggle />
+            <NotificationsDropdown />
             
             {user && (
               <div className="flex items-center space-x-2 lg:space-x-3">
