@@ -96,7 +96,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <div>
               <label 
                 className="block text-sm font-medium mb-2"
