@@ -52,7 +52,11 @@ export default function DateTimePicker({
         ref={fpRef}
         value={value ? new Date(value) : undefined}
         onChange={([date]) => {
-          if (date) onChange(date.toISOString())
+          if (date) {
+            const pad = (n: number) => String(n).padStart(2, '0')
+            const local = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`
+            onChange(local)
+          }
         }}
         options={{
           locale: Portuguese,
@@ -63,7 +67,7 @@ export default function DateTimePicker({
           defaultHour: 9,
           defaultMinute: 0,
           position: 'auto center',
-          disableMobile: false,
+          disableMobile: true,
           wrap: false,
           clickOpens: true,
         }}

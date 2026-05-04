@@ -98,8 +98,8 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
       const eventData = {
         title,
         description,
-        start_at: new Date(startAt).toISOString(),
-        end_at: new Date(endAt).toISOString(),
+        start_at: startAt,  // ← direto, sem new Date().toISOString()
+        end_at: endAt,      // ← direto, sem new Date().toISOString()
         category_id: categoryId,
         status
       }
@@ -181,11 +181,11 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
               <div className="grid grid-cols-2 gap-1">
                 <input
                   type="date"
-                  value={startAt ? new Date(startAt).toISOString().split('T')[0] : ''}
+                  value={startAt ? startAt.split('T')[0] : ''}
                   onChange={(e) => {
                     const newDate = e.target.value;
                     if (startAt) {
-                      const existingTime = new Date(startAt).toTimeString().slice(0, 5);
+                      const existingTime = startAt.split('T')[1]?.slice(0, 5) ?? '09:00';
                       setStartAt(`${newDate}T${existingTime}:00`);
                     } else {
                       setStartAt(`${newDate}T09:00:00`);
@@ -205,11 +205,11 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
                 />
                 <input
                   type="time"
-                  value={startAt ? new Date(startAt).toTimeString().slice(0, 5) : '09:00'}
+                  value={startAt ? startAt.split('T')[1]?.slice(0, 5) ?? '09:00' : '09:00'}
                   onChange={(e) => {
                     const newTime = e.target.value;
                     if (startAt) {
-                      const existingDate = new Date(startAt).toISOString().split('T')[0];
+                      const existingDate = startAt.split('T')[0];
                       setStartAt(`${existingDate}T${newTime}:00`);
                     } else {
                       setStartAt(`${new Date().toISOString().split('T')[0]}T${newTime}:00`);
@@ -238,11 +238,11 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
               <div className="grid grid-cols-2 gap-1">
                 <input
                   type="date"
-                  value={endAt ? new Date(endAt).toISOString().split('T')[0] : ''}
+                  value={endAt ? endAt.split('T')[0] : ''}
                   onChange={(e) => {
                     const newDate = e.target.value;
                     if (endAt) {
-                      const existingTime = new Date(endAt).toTimeString().slice(0, 5);
+                      const existingTime = endAt.split('T')[1]?.slice(0, 5) ?? '10:00';
                       setEndAt(`${newDate}T${existingTime}:00`);
                     } else {
                       setEndAt(`${newDate}T10:00:00`);
@@ -262,11 +262,11 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
                 />
                 <input
                   type="time"
-                  value={endAt ? new Date(endAt).toTimeString().slice(0, 5) : '10:00'}
+                  value={endAt ? endAt.split('T')[1]?.slice(0, 5) ?? '10:00' : '10:00'}
                   onChange={(e) => {
                     const newTime = e.target.value;
                     if (endAt) {
-                      const existingDate = new Date(endAt).toISOString().split('T')[0];
+                      const existingDate = endAt.split('T')[0];
                       setEndAt(`${existingDate}T${newTime}:00`);
                     } else {
                       setEndAt(`${new Date().toISOString().split('T')[0]}T${newTime}:00`);

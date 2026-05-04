@@ -128,12 +128,12 @@ export default function Calendar() {
       const category = categories.find(cat => cat.id === event.categoria_id)
       const categoryColor = category?.Color || '#5F0000'
       
+      // Manter a string original sem converter para Date para evitar fuso horário
       return {
         id: event.id,
         title: event.Titulo,
         start: event.DataHoraInicio,
         end: event.DataHoraFinal,
-        allDay: false,
         backgroundColor: categoryColor,
         textColor: getContrastColor(categoryColor),
         extendedProps: {
@@ -925,7 +925,7 @@ export default function Calendar() {
               }}
               dayHeaderContent={(args) => {
                 const view = args.view.type;
-                const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+                const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
                 
                 // Aplicar nas views semanal e diária
                 if (view === 'timeGridWeek' || view === 'timeGridDay') {
