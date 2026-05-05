@@ -21,6 +21,9 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
   const [status, setStatus] = useState<'nao_iniciado' | 'em_andamento' | 'concluido'>('nao_iniciado')
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
+  const [repeats, setRepeats] = useState(false)
+  const [repeatDays, setRepeatDays] = useState<string[]>([])
+  const [repeatEnds, setRepeatEnds] = useState<'never' | 'on'>('never')
 
   useEffect(() => {
     fetchCategories()
@@ -98,10 +101,13 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
       const eventData = {
         title,
         description,
-        start_at: startAt,  // ← direto, sem new Date().toISOString()
-        end_at: endAt,      // ← direto, sem new Date().toISOString()
+        start_at: startAt,  
+        end_at: endAt,      
         category_id: categoryId,
-        status
+        status,
+        repeats,
+        repeatDays,
+        repeatEnds
       }
       
       await onSave(eventData)
@@ -311,6 +317,76 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
               ))}
             </select>
           </div>
+
+          {/* Campo de Repetição */}
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
+              <input
+                type="checkbox"
+                checked={repeats}
+                onChange={(e) => setRepeats(e.target.checked)}
+                className="mr-2"
+              />
+              Se repete?
+            </label>
+          </div>
+
+          {/* Opções de Repetição (expandível) */}
+          {repeats && (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
+                  Dias da semana:
+                </label>
+                <div className="flex gap-2">
+                  {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, index) => (
+                    <label key={index} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={repeatDays.includes(day)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setRepeatDays([...repeatDays, day])
+                          } else {
+                            setRepeatDays(repeatDays.filter(d => d !== day))
+                          }
+                        }}
+                        className="mr-1 w-4 h-4 rounded-full"
+                        style={{ accentColor: 'var(--color-primary)' }}
+                      />
+                      <span className="text-sm" style={{ color: 'var(--color-text)' }}>{day}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
+                  Terminar em:
+                </label>
+                <select
+                  value={repeatEnds}
+                  onChange={(e) => setRepeatEnds(e.target.value as 'never' | 'on')}
+                  className="w-full input-modern"
+                >
+                  <option value="never">Nunca</option>
+                  <option value="on">Em:</option>
+                </select>
+              </div>
+
+              {repeatEnds === 'on' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
+                    Data final:
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full input-modern"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex justify-between items-center pt-4">
             <button
