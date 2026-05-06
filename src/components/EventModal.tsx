@@ -3,6 +3,8 @@ import type { Event, Category } from '../types'
 import { supabase } from '../lib/supabase'
 import StatusSelector from './StatusSelector'
 import Swal from 'sweetalert2'
+import DateModal from './DateModal'
+import React, { Fragment } from 'react'
 
 interface EventModalProps {
   event?: Event | null
@@ -24,19 +26,27 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
   const [repeats, setRepeats] = useState(false)
   const [repeatDays, setRepeatDays] = useState<string[]>([])
   const [repeatEnds, setRepeatEnds] = useState<'never' | 'on'>('never')
+  const [repeatEndDate, setRepeatEndDate] = useState('')
+  const [showDateModal, setShowDateModal] = useState(false)
 
   useEffect(() => {
     fetchCategories()
     if (event) {
       setTitle(event.title)
       setDescription(event.description || '')
-      setStartAt(event.start_at)
-      setEndAt(event.end_at)
+      // Corrigir fuso horário ao carregar datas
+      const startDate = new Date(event.start_at)
+      const endDate = new Date(event.end_at)
+      startDate.setHours(startDate.getHours() - 3)
+      endDate.setHours(endDate.getHours() - 3)
+      
+      setStartAt(startDate.toISOString().replace('Z', '-03:00'))
+      setEndAt(endDate.toISOString().replace('Z', '-03:00'))
             setCategoryId(event.category_id || '')
       setStatus(event.status || 'nao_iniciado')
     } else if (selectedDate) {
       // Adicionar hora padrão se só tiver data
-      const dateTime = selectedDate.includes('T') ? selectedDate : `${selectedDate}T09:00`
+      const dateTime = selectedDate.includes('T') ? selectedDate : `${selectedDate}T09:00:00-03:00`
       setStartAt(dateTime)
       setEndAt(dateTime)
       setStatus('nao_iniciado')
@@ -339,22 +349,33 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
                   Dias da semana:
                 </label>
                 <div className="flex gap-2">
-                  {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, index) => (
-                    <label key={index} className="flex items-center">
+                  {[
+                    { id: 'domingo', label: 'D' },
+                    { id: 'segunda', label: 'S' },
+                    { id: 'terca', label: 'T' },
+                    { id: 'quarta', label: 'Q' },
+                    { id: 'quinta', label: 'Q' },
+                    { id: 'sexta', label: 'S' },
+                    { id: 'sabado', label: 'S' }
+                  ].map((day) => (
+                    <label key={day.id} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={repeatDays.includes(day)}
+                        checked={repeatDays.includes(day.id)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setRepeatDays([...repeatDays, day])
+                            setRepeatDays([...repeatDays, day.id])
                           } else {
-                            setRepeatDays(repeatDays.filter(d => d !== day))
+                            setRepeatDays(repeatDays.filter(d => d !== day.id))
                           }
                         }}
-                        className="mr-1 w-4 h-4 rounded-full"
-                        style={{ accentColor: 'var(--color-primary)' }}
+                        className="mr-1 w-4 h-4 rounded-full appearance-none border-2 border-gray-300 checked:border-wine-600 checked:bg-wine-600"
+                        style={{ 
+                          backgroundColor: repeatDays.includes(day.id) ? 'var(--color-primary)' : 'transparent',
+                          borderColor: repeatDays.includes(day.id) ? 'var(--color-primary)' : '#d1d5db'
+                        }}
                       />
-                      <span className="text-sm" style={{ color: 'var(--color-text)' }}>{day}</span>
+                      <span className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>{day.label}</span>
                     </label>
                   ))}
                 </div>
@@ -379,10 +400,19 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
                   <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
                     Data final:
                   </label>
-                  <input
-                    type="date"
-                    className="w-full input-modern"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDateModal(true)}
+                    className="w-full input-modern text-left"
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <span>{repeatEndDate || 'Selecione uma data'}</span>
+                    <span style={{ color: 'var(--color-text-secondary)' }}>📅</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -433,8 +463,19 @@ export default function EventModal({ event, selectedDate, onClose, onSave, onDel
             </div>
           </div>
         </form>
-        </div>
       </div>
     </div>
+      {showDateModal && (
+    <Fragment>
+      <DateModal
+        isOpen={showDateModal}
+        onClose={() => setShowDateModal(false)}
+        onConfirm={(date) => setRepeatEndDate(date)}
+        selectedDate={repeatEndDate}
+      />
+    </Fragment>
+  )}
+  </div>
   )
 }
+
